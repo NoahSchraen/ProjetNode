@@ -6,6 +6,10 @@ import { authRoutes } from "./routes/auth-route.js";
 import { roomRoutes } from "./routes/room-route.js";
 import { movieRoutes } from "./routes/movie-routes.js";
 import { sessionRoutes } from "./routes/session-route.js";
+import { createRooms } from "./database/room-seed.js";
+import { createMovies } from "./database/movie-seed.js";
+import { createSessions } from "./database/session-seed.js";
+import { createTickets } from "./database/ticket-seed.js";
 import { AuthMiddleware } from "./handlers/middlewares/auth-middleware.js";
 import { ErrorMiddleware, NotFoundMiddleware } from "./handlers/middlewares/error-middleware.js";
 import { LoggerMiddleware } from "./handlers/middlewares/logger-middleware.js";
@@ -21,6 +25,11 @@ app.use("/sessions", AuthMiddleware, sessionRoutes);
 app.use(NotFoundMiddleware);
 app.use(ErrorMiddleware);
 
-AppDataSource.initialize().then(() => {
+
+AppDataSource.initialize().then(async () => {
+    await createRooms();
+    await createMovies();
+    await createSessions();
+    await createTickets();
     app.listen(3000, () => { console.log("Serveur lancé sur http://localhost:3000"); });
 });
