@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 import { User, UserRole } from "../database/entities/user.js";
 import { Token } from "../database/entities/token.js";
@@ -19,7 +20,7 @@ export class AuthUsecase {
             return null;
         }
 
-        const hashedPassword = password;
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = this.userRepo.create({
             email,
@@ -44,8 +45,7 @@ export class AuthUsecase {
             return null;
         }
 
-        const validPassword =
-            password === user.password;
+        const validPassword = await bcrypt.compare(password, user.password);
 
         if (!validPassword) {
             return null;
@@ -58,17 +58,23 @@ export class AuthUsecase {
                 role: user.role
             },
             process.env.JWT_SECRET || "secret",
-            { expiresIn: "1h" }
+            { expiresIn: "5m" }
+        );
+
+        const refreshToken = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_REFRESH_SECRET || "refresh_secret",
+            { expiresIn: "7d" }
         );
 
         const tokenSaved = this.tokenRepo.create({
-            value: token,
+            value: refreshToken,
             user
         });
 
         await this.tokenRepo.save(tokenSaved);
 
-        return { token };
+        return { token, refreshToken };
     }
 
     async logout(userId: number) {
@@ -82,5 +88,38 @@ export class AuthUsecase {
         });
 
         await this.tokenRepo.remove(tokens);
+    }
+
+    async refreshToken(refreshTokenString: string) {
+        try {
+            const decoded = jwt.verify(
+                refreshTokenString,
+                process.env.JWT_REFRESH_SECRET || "refresh_secret"
+            ) as { userId: number };
+
+            const tokenInDb = await this.tokenRepo.findOne({
+                where: { value: refreshTokenString },
+                relations: ["user"]
+            });
+
+            if (!tokenInDb) {
+                return null;
+            }
+
+            const newAccessToken = jwt.sign(
+                {
+                    userId: tokenInDb.user.id,
+                    email: tokenInDb.user.email,
+                    role: tokenInDb.user.role
+                },
+                process.env.JWT_SECRET || "secret",
+                { expiresIn: "5m" }
+            );
+
+            return { token: newAccessToken };
+            
+        } catch (error) {
+            return null; 
+        }
     }
 }
