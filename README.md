@@ -1,44 +1,88 @@
-# ProjetNode # Cinema API 
+# Projet cinéma Al
 
-projet sur l'API REST de la gestion d’un cinéma (salles, films, séances, billets, utilisateurs)
+- Node.js
+- TypeScript
+- Express
+- TypeORM
+- MySQL
+- JWT
+- Joi
 
-# Stack technique
+# Installation
 
-* Node.js
-* TypeScript
-* Express
-* PostgreSQL
-* TypeORM
-* Docker 
-
-##  Installation des dépendances
+inatallation des dependances : 
 
 npm install
 
-## Lancement de la base
+Lancement de MySQL avec Docker :
 
-docker-compose up -d
+docker compose up database
 
-# Lancement du serveur
+Lancement du serveur :
 
 npm run dev
 
-# Test sur l’API avec Postman
+Résultat attendu :
 
-POST : http://localhost:3000/rooms
+Serveur lancé sur http://localhost:3000
 
-Dans le body créer une salle : 
+# Routes auth
 
+POST /auth/register
+
+Body :
 {
-  "name": "Salle 1",
-  "description": "Grande salle",
-  "images": ["img1.jpg"],
+  "email": "youyou@test.fr",
+  "password": "password123"
+}
+
+POST /auth/login
+
+Body :
+{
+  "email": "aurore@test.fr",
+  "password": "password123"
+}
+
+POST /auth/logout
+
+# Routes salles
+
+Toutes les routes vers /rooms demandent un token
+
+GET /rooms
+GET /rooms/1
+POST /rooms
+
+Body :
+{
+  "name": "Salle Rouge",
+  "description": "Grande salle confortable",
+  "images": "",
   "type": "IMAX",
+  "capacity": 20,
+  "handicapAccess": true
+}
+
+PUT /rooms/1
+
+Body :
+{
+  "name": "Salle Bleue",
   "capacity": 25
 }
 
-GET : http://localhost:3000/rooms
+DELETE /rooms/1
 
-# Auteur
+PATCH /rooms/1/maintenance
 
-Aurore - Hakim - Noah
+Body :
+{
+  "inMaintenance": true
+}
+
+# Point clé à noter
+
+- Pour créer, modifier, supprimer ou mettre une salle en maintenance, il faut être ADMIN ou SUPER_ADMIN
+- Par défaut un nouvel utilisateur est CLIENT
+- Pour tester rapidement les routes admin, on peut modifier son rôle directement dans MySQL

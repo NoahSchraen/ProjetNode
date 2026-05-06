@@ -1,27 +1,3 @@
-
-# Node modules
-node_modules/
-
-# Build output
-dist/
-build/
-
-# Environment files
+node_modules
+dist
 .env
-.env.*
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Docker
-docker-compose.override.yml
-
-# IDEs
-.vscode/
-.idea/
-
-# Coverage reports
-coverage/
-
-# Misc
-*.tgz

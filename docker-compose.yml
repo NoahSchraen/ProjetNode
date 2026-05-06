@@ -1,13 +1,17 @@
-version: "3.8"
-
 services:
-  db:
-    image: postgres:15
-    container_name: cinema_db
-    restart: always
-    environment:
-      POSTGRES_USER: cinema
-      POSTGRES_PASSWORD: cinema
-      POSTGRES_DB: cinema_db
+  app:
+    build: .
     ports:
-      - "5432:5432"
+      - "3000:3000"
+    depends_on:
+      - database
+    env_file:
+      - .env
+
+  database:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cinema
+    ports:
+      - "3307:3306"
