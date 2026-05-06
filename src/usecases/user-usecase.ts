@@ -1,8 +1,12 @@
 import { Repository } from "typeorm";
 import { User } from "../database/entities/user.js";
+import { Transaction, TransactionType } from "../database/entities/transaction.js";
 
 export class UserUsecase {
-    constructor(private userRepo: Repository<User>) {}
+    constructor(
+        private userRepo: Repository<User>,
+        private transactionRepo: Repository<Transaction>
+    ) {}
 
     async getProfile(userId: number) {
         return await this.userRepo.findOne({
@@ -17,11 +21,45 @@ export class UserUsecase {
         });
     }
 
-    async depositMoney(userId: number, amount: number) {
+    async depositMoney(userId: number, compte: number) {
         const user = await this.userRepo.findOneBy({ id: userId });
-        if (!user) return null;
+        if (user == null){
+            return null;
+        }
 
-        user.argent += amount;
-        return await this.userRepo.save(user);
+        user.argent += compte;
+        const updatedUser = await this.userRepo.save(user);
+        
+        const transaction = this.transactionRepo.create({
+            amount: compte,
+            type: TransactionType.DEPOT,
+            user: updatedUser
+        });
+        await this.transactionRepo.save(transaction);
+
+        return updatedUser;
     }
+
+    async withdrawMoney(userId: number, compte: number) {
+        const user = await this.userRepo.findOneBy({ id: userId });
+        if (user == null){
+            return null;
+        }
+        if (user.argent < compte) {
+            throw new Error("Solde insuffisant pour effectuer ce retrait.");
+        }
+
+        user.argent -= compte;
+        const updatedUser = await this.userRepo.save(user);
+
+        const transaction = this.transactionRepo.create({
+            amount: compte,
+            type: TransactionType.RETRAIT,
+            user: updatedUser
+        });
+        await this.transactionRepo.save(transaction);
+
+        return updatedUser;
+    }
+
 }
