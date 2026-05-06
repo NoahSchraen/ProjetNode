@@ -5,6 +5,7 @@ import { AppDataSource } from "./database/database.js";
 import { authRoutes } from "./routes/auth-route.js";
 import { roomRoutes } from "./routes/room-route.js";
 import { movieRoutes } from "./routes/movie-routes.js";
+import { sessionRoutes } from "./routes/session-route.js";
 import { AuthMiddleware } from "./handlers/middlewares/auth-middleware.js";
 import { ErrorMiddleware, NotFoundMiddleware } from "./handlers/middlewares/error-middleware.js";
 import { LoggerMiddleware } from "./handlers/middlewares/logger-middleware.js";
@@ -16,6 +17,7 @@ app.use(LoggerMiddleware);
 app.use("/auth", authRoutes);
 app.use("/rooms", AuthMiddleware, roomRoutes);
 app.use("/movies", AuthMiddleware, movieRoutes);
+app.use("/sessions", AuthMiddleware, sessionRoutes);
 app.use(NotFoundMiddleware);
 app.use(ErrorMiddleware);
 
