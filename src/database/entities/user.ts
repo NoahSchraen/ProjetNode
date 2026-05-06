@@ -25,6 +25,9 @@ export class User {
     })
     role!: UserRole;
 
+    @Column("float", { default: 0 })
+    argent!: number;
+
     @OneToMany(() => Token, token => token.user)
     tokens!: Token[];
 }
