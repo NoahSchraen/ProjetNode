@@ -19,6 +19,8 @@ export class SessionUsecase {
 
         if (!movie || !room) { return null; }
 
+        if (room.inMaintenance) {return "room_in_maintenance";}
+
         const session = this.sessionRepo.create({ movie, room, startTime: data.startTime, endTime: data.endTime });
 
         return this.sessionRepo.save(session);
