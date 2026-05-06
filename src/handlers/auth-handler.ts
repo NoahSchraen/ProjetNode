@@ -39,3 +39,19 @@ export const Logout = async (req: Request, res: Response) => {
     await authUsecase.logout(req.user!.userId);
     return res.json({ message: "Déconnexion réussie" });
 };
+
+export const RefreshToken = async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(400).json({ error: "Refresh token manquant" });
+    }
+
+    const result = await authUsecase.refreshToken(refreshToken);
+
+    if (!result) {
+        return res.status(403).json({ error: "Refresh token invalide ou expiré" });
+    }
+
+    return res.json(result);
+};

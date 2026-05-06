@@ -13,6 +13,7 @@ import { createTickets } from "./database/ticket-seed.js";
 import { AuthMiddleware } from "./handlers/middlewares/auth-middleware.js";
 import { ErrorMiddleware, NotFoundMiddleware } from "./handlers/middlewares/error-middleware.js";
 import { LoggerMiddleware } from "./handlers/middlewares/logger-middleware.js";
+import { userRoutes } from "./routes/user-route.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/movies", AuthMiddleware, movieRoutes);
 app.use("/sessions", AuthMiddleware, sessionRoutes);
 app.use(NotFoundMiddleware);
 app.use(ErrorMiddleware);
+app.use("/users", userRoutes);
 
 
 AppDataSource.initialize().then(async () => {
