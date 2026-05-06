@@ -8,19 +8,11 @@ export interface JwtPayload {
     role: UserRole;
 }
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: JwtPayload;
-        }
-    }
-}
+declare global { namespace Express { interface Request { user?: JwtPayload; }}}
 
 export const AuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        return res.status(401).json({ error: "Token manquant" });
-    }
+    if (!authHeader) { return res.status(401).json({ error: "Token manquant" }); }
     const token = authHeader.split(" ")[1];
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET || "secret") as JwtPayload;
@@ -32,12 +24,8 @@ export const AuthMiddleware = (req: Request, res: Response, next: NextFunction) 
 
 export const RequireRole = (roles: UserRole[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        if (!req.user) {
-            return res.status(401).json({ error: "Non connecté" });
-        }
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ error: "Accès refusé" });
-        }
+        if (!req.user) { return res.status(401).json({ error: "Non connecté" }); }
+        if (!roles.includes(req.user.role)) { return res.status(403).json({ error: "Accès refusé" }); }
         next();
     };
 };

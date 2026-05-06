@@ -7,13 +7,14 @@ import { RoomUsecase } from "../usecases/room-usecase.js";
 import { CreateRoomValidator, UpdateRoomValidator } from "./validators/room-validator.js";
 import { generateValidationErrorMessage } from "./validators/utils.js";
 
-const roomUsecase = new RoomUsecase(
-    AppDataSource.getRepository(Room)
-);
+const roomUsecase = new RoomUsecase( AppDataSource.getRepository(Room) );
 
 export const ListRooms = async (req: Request, res: Response) => {
+
     const isAdmin = req.user?.role === UserRole.ADMIN || req.user?.role === UserRole.SUPER_ADMIN;
+
     const rooms = await roomUsecase.list(isAdmin);
+    
     return res.json(rooms);
 };
 

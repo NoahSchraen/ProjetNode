@@ -1,5 +1,4 @@
 import { DataSource } from "typeorm";
-
 import { User } from "./entities/user.js";
 import { Token } from "./entities/token.js";
 import { Room } from "./entities/room.js";
