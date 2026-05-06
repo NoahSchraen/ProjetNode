@@ -27,3 +27,21 @@ export const Depot = async (req: Request, res: Response) => {
         newBalance: updatedUser?.argent 
     });
 };
+
+export const Withdraw = async (req: Request, res: Response) => {
+    const { amount } = req.body;
+    
+    if (!amount || amount <= 0) {
+        return res.status(400).json({ error: "Le montant doit être supérieur à 0" });
+    }
+
+    try {
+        const updatedUser = await userUsecase.withdrawMoney(req.user!.userId, amount);
+        return res.json({ 
+            message: "Retrait effectué avec succès", 
+            newBalance: updatedUser?.argent 
+        });
+    } catch (error: any) {
+        return res.status(400).json({ error: error.message });
+    }
+};

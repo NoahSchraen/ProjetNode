@@ -39,4 +39,27 @@ export class UserUsecase {
 
         return updatedUser;
     }
+
+    async withdrawMoney(userId: number, compte: number) {
+        const user = await this.userRepo.findOneBy({ id: userId });
+        if (user == null){
+            return null;
+        }
+        if (user.argent < compte) {
+            throw new Error("Solde insuffisant pour effectuer ce retrait.");
+        }
+
+        user.argent -= compte;
+        const updatedUser = await this.userRepo.save(user);
+
+        const transaction = this.transactionRepo.create({
+            amount: compte,
+            type: TransactionType.RETRAIT,
+            user: updatedUser
+        });
+        await this.transactionRepo.save(transaction);
+
+        return updatedUser;
+    }
+
 }
