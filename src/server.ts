@@ -6,6 +6,7 @@ import { authRoutes } from "./routes/auth-route.js";
 import { roomRoutes } from "./routes/room-route.js";
 import { movieRoutes } from "./routes/movie-routes.js";
 import { sessionRoutes } from "./routes/session-route.js";
+import { ticketRoutes } from "./routes/ticket-route.js";
 import { createRooms } from "./database/room-seed.js";
 import { createMovies } from "./database/movie-seed.js";
 import { createSessions } from "./database/session-seed.js";
@@ -23,9 +24,11 @@ app.use("/auth", authRoutes);
 app.use("/rooms", AuthMiddleware, roomRoutes);
 app.use("/movies", AuthMiddleware, movieRoutes);
 app.use("/sessions", AuthMiddleware, sessionRoutes);
+app.use("/tickets", AuthMiddleware, ticketRoutes);
+app.use("/users", userRoutes);
 app.use(NotFoundMiddleware);
 app.use(ErrorMiddleware);
-app.use("/users", userRoutes);
+
 
 
 AppDataSource.initialize().then(async () => {
