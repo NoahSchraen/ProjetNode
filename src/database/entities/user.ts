@@ -1,4 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn
+} from "typeorm";
 
 import { Token } from "./token.js";
 
@@ -14,18 +19,27 @@ export class User {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column("varchar", { unique: true })
+    @Column({
+        type: "varchar",
+        unique: true
+    })
     email!: string;
 
-    @Column("varchar")
+    @Column({
+        type: "varchar"
+    })
     password!: string;
 
-    @Column("varchar", {
+    @Column({
+        type: "varchar",
         default: UserRole.CLIENT
     })
     role!: UserRole;
 
-    @Column("float", { default: 0 })
+    @Column({
+        type: "float",
+        default: 0
+    })
     argent!: number;
 
     @OneToMany(() => Token, token => token.user)

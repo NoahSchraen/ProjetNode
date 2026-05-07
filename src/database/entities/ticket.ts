@@ -1,4 +1,10 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
+
 import { User } from "./user.js";
 import { Session } from "./session.js";
 
@@ -14,9 +20,15 @@ export class Ticket {
     @ManyToOne(() => Session)
     session!: Session;
 
-    @Column({default: false })
+    @Column({
+        type: "boolean",
+        default: false
+    })
     isUsed!: boolean;
 
-    @Column({ default: "SIMPLE" })
+    @Column({
+        type: "varchar",
+        default: "SIMPLE"
+    })
     type!: string;
 }

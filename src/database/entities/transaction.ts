@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
+
 import { User } from "./user.js";
 
 export enum TransactionType {
@@ -9,10 +16,13 @@ export enum TransactionType {
 
 @Entity()
 export class Transaction {
+
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column("float")
+    @Column({
+        type: "float"
+    })
     amount!: number;
 
     @Column({
@@ -20,7 +30,9 @@ export class Transaction {
     })
     type!: TransactionType;
 
-    @CreateDateColumn()
+    @CreateDateColumn({
+        type: "datetime"
+    })
     createdAt!: Date;
 
     @ManyToOne(() => User)

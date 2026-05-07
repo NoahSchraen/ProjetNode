@@ -1,4 +1,8 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn
+} from "typeorm";
 
 @Entity()
 export class Room {
@@ -6,24 +10,42 @@ export class Room {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column("varchar")
+    @Column({
+        type: "varchar"
+    })
     name!: string;
 
-    @Column("varchar", { nullable: true })
+    @Column({
+        type: "varchar",
+        nullable: true
+    })
     description!: string;
 
-    @Column("varchar", { nullable: true })
+    @Column({
+        type: "varchar",
+        nullable: true
+    })
     images!: string;
 
-    @Column("varchar")
+    @Column({
+        type: "varchar"
+    })
     type!: string;
 
-    @Column("int")
+    @Column({
+        type: "int"
+    })
     capacity!: number;
 
-    @Column("boolean", { default: false })
+    @Column({
+        type: "boolean",
+        default: false
+    })
     handicapAccess!: boolean;
 
-    @Column("boolean", { default: false })
+    @Column({
+        type: "boolean",
+        default: false
+    })
     inMaintenance!: boolean;
 }

@@ -1,0 +1,979 @@
+openapi: 3.0.3
+info:
+  title: Cinema API
+  description: API REST pour la gestion d'un cinéma — films, salles, séances, billets, utilisateurs et transactions.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Serveur local
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        role:
+          type: string
+          enum: [CLIENT, ADMIN, SUPER_ADMIN]
+          example: CLIENT
+        argent:
+          type: number
+          format: float
+          example: 42.50
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Inception
+        description:
+          type: string
+          example: Un voleur qui s'infiltre dans les rêves.
+        duration:
+          type: integer
+          description: Durée en minutes
+          example: 148
+        genre:
+          type: string
+          example: Science-Fiction
+        image:
+          type: string
+          example: https://cdn.example.com/inception.jpg
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Salle 1
+        description:
+          type: string
+          nullable: true
+          example: Grande salle avec écran IMAX
+        images:
+          type: string
+          nullable: true
+          example: https://cdn.example.com/salle1.jpg
+        type:
+          type: string
+          example: IMAX
+        capacity:
+          type: integer
+          minimum: 15
+          maximum: 30
+          example: 28
+        handicapAccess:
+          type: boolean
+          example: true
+        inMaintenance:
+          type: boolean
+          example: false
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        movie:
+          $ref: '#/components/schemas/Movie'
+        room:
+          $ref: '#/components/schemas/Room'
+        startTime:
+          type: string
+          format: date-time
+          example: '2025-06-15T14:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          example: '2025-06-15T16:30:00Z'
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          $ref: '#/components/schemas/Session'
+        isUsed:
+          type: boolean
+          example: false
+        type:
+          type: string
+          enum: [SIMPLE, VIP]
+          example: SIMPLE
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 12.00
+        type:
+          type: string
+          enum: [DEPOT, RETRAIT, ACHAT]
+          example: DEPOT
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-06-15T10:00:00Z'
+        user:
+          $ref: '#/components/schemas/User'
+
+    RegisterInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          example: motdepasse123
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          example: motdepasse123
+
+    RefreshTokenInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    CreateMovieInput:
+      type: object
+      required: [title, description, duration, genre, image]
+      properties:
+        title:
+          type: string
+          example: Inception
+        description:
+          type: string
+          example: Un voleur qui s'infiltre dans les rêves.
+        duration:
+          type: integer
+          minimum: 1
+          example: 148
+        genre:
+          type: string
+          example: Science-Fiction
+        image:
+          type: string
+          example: https://cdn.example.com/inception.jpg
+
+    UpdateMovieInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+          minimum: 1
+        genre:
+          type: string
+        image:
+          type: string
+
+    CreateRoomInput:
+      type: object
+      required: [name, type, capacity]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          example: Salle 3
+        description:
+          type: string
+          nullable: true
+          example: Salle classique
+        images:
+          type: string
+          nullable: true
+          example: https://cdn.example.com/salle3.jpg
+        type:
+          type: string
+          example: STANDARD
+        capacity:
+          type: integer
+          minimum: 15
+          maximum: 30
+          example: 20
+        handicapAccess:
+          type: boolean
+          example: false
+
+    UpdateRoomInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        description:
+          type: string
+          nullable: true
+        images:
+          type: string
+          nullable: true
+        type:
+          type: string
+        capacity:
+          type: integer
+          minimum: 15
+          maximum: 30
+        handicapAccess:
+          type: boolean
+
+    SetMaintenanceInput:
+      type: object
+      required: [inMaintenance]
+      properties:
+        inMaintenance:
+          type: boolean
+          example: true
+
+    CreateSessionInput:
+      type: object
+      required: [movieId, roomId, startTime, endTime]
+      properties:
+        movieId:
+          type: integer
+          example: 1
+        roomId:
+          type: integer
+          example: 2
+        startTime:
+          type: string
+          format: date-time
+          example: '2025-06-15T14:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          example: '2025-06-15T16:30:00Z'
+
+    UpdateSessionInput:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+
+    BuyTicketInput:
+      type: object
+      required: [sessionId]
+      properties:
+        sessionId:
+          type: integer
+          example: 5
+        type:
+          type: string
+          enum: [SIMPLE, VIP]
+          default: SIMPLE
+          example: SIMPLE
+
+    DepotInput:
+      type: object
+      required: [montant]
+      properties:
+        montant:
+          type: number
+          format: float
+          minimum: 0.01
+          example: 50.00
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Ressource introuvable
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Opération réussie
+
+paths:
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Inscription
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  role:
+                    type: string
+                    enum: [CLIENT]
+        '400':
+          description: Validation échouée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Tokens JWT retournés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Access token (expire en 5min)
+                  refreshToken:
+                    type: string
+                    description: Refresh token (expire en 7j)
+        '400':
+          description: Validation échouée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Identifiants incorrects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Déconnexion (invalide tous les refresh tokens)
+      responses:
+        '200':
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Non authentifié
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Rafraîchir l'access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenInput'
+      responses:
+        '200':
+          description: Nouvel access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Refresh token manquant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Refresh token invalide ou expiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /movies:
+    get:
+      tags: [Movies]
+      summary: Lister tous les films
+      responses:
+        '200':
+          description: Liste des films
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+
+    post:
+      tags: [Movies]
+      summary: Créer un film (ADMIN / SUPER_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMovieInput'
+      responses:
+        '201':
+          description: Film créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Validation échouée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Accès interdit
+
+  /movies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Movies]
+      summary: Récupérer un film par ID
+      responses:
+        '200':
+          description: Film trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Film introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Movies]
+      summary: Modifier un film (ADMIN / SUPER_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMovieInput'
+      responses:
+        '200':
+          description: Film mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Validation échouée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Film introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Movies]
+      summary: Supprimer un film (ADMIN / SUPER_ADMIN)
+      responses:
+        '200':
+          description: Film supprimé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Film introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /rooms:
+    get:
+      tags: [Rooms]
+      summary: Lister les salles (les salles en maintenance sont cachées aux CLIENT)
+      responses:
+        '200':
+          description: Liste des salles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+
+    post:
+      tags: [Rooms]
+      summary: Créer une salle (ADMIN / SUPER_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoomInput'
+      responses:
+        '201':
+          description: Salle créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          description: Validation échouée ou règle métier violée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rooms/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Rooms]
+      summary: Récupérer une salle par ID
+      responses:
+        '200':
+          description: Salle trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Salle introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Rooms]
+      summary: Modifier une salle (ADMIN / SUPER_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoomInput'
+      responses:
+        '200':
+          description: Salle mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          description: Validation échouée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Salle introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Rooms]
+      summary: Supprimer une salle (ADMIN / SUPER_ADMIN)
+      responses:
+        '200':
+          description: Salle supprimée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Salle introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rooms/{id}/maintenance:
+    patch:
+      tags: [Rooms]
+      summary: Activer / désactiver la maintenance d'une salle (ADMIN / SUPER_ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetMaintenanceInput'
+      responses:
+        '200':
+          description: Statut mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Salle introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /sessions:
+    get:
+      tags: [Sessions]
+      summary: Lister les séances
+      responses:
+        '200':
+          description: Liste des séances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+
+    post:
+      tags: [Sessions]
+      summary: Créer une séance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionInput'
+      responses:
+        '201':
+          description: Séance créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /sessions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    put:
+      tags: [Sessions]
+      summary: Modifier une séance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionInput'
+      responses:
+        '200':
+          description: Séance modifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      tags: [Sessions]
+      summary: Supprimer une séance
+      responses:
+        '200':
+          description: Séance supprimée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+
+  /schedule:
+    get:
+      tags: [Schedule]
+      summary: Obtenir le planning complet du cinéma sur une période
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: '2025-06-01T00:00:00Z'
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: '2025-06-30T23:59:59Z'
+      responses:
+        '200':
+          description: Planning retourné
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '400':
+          description: Paramètres de date invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /tickets/buy:
+    post:
+      tags: [Tickets]
+      summary: Acheter un billet pour une séance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuyTicketInput'
+      responses:
+        '201':
+          description: Billet acheté
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Utilisateur ou séance introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tickets/my:
+    get:
+      tags: [Tickets]
+      summary: Lister mes billets
+      responses:
+        '200':
+          description: Liste des billets de l'utilisateur connecté
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+  /tickets/{id}/use:
+    post:
+      tags: [Tickets]
+      summary: Utiliser un billet (marquer comme utilisé)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Billet marqué comme utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Billet introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Récupérer mon profil
+      responses:
+        '200':
+          description: Profil de l'utilisateur connecté
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/me/deposit:
+    post:
+      tags: [Users]
+      summary: Recharger mon compte (dépôt d'argent)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepotInput'
+      responses:
+        '200':
+          description: Compte rechargé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Compte rechargé
+                  newBalance:
+                    type: number
+                    format: float
+                    example: 92.50
+        '400':
+          description: Montant invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Lister tous les utilisateurs (ADMIN / SUPER_ADMIN)
+      responses:
+        '200':
+          description: Liste de tous les utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Accès interdit
+
+  /transactions/me:
+    get:
+      tags: [Transactions]
+      summary: Historique de mes transactions
+      responses:
+        '200':
+          description: Liste des transactions de l'utilisateur connecté
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
+  /transactions/all:
+    get:
+      tags: [Transactions]
+      summary: Toutes les transactions (ADMIN / SUPER_ADMIN)
+      responses:
+        '200':
+          description: Liste de toutes les transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '403':
+          description: Accès interdit

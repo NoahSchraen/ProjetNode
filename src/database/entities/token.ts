@@ -1,4 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
 
 import { User } from "./user.js";
 
@@ -8,7 +13,9 @@ export class Token {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column("varchar")
+    @Column({
+        type: "varchar"
+    })
     value!: string;
 
     @ManyToOne(() => User, user => user.tokens)

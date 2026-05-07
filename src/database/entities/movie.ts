@@ -1,4 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn
+} from "typeorm";
 
 @Entity()
 export class Movie {
@@ -6,18 +10,24 @@ export class Movie {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column({ type: "varchar" })
     title!: string;
 
-    @Column()
+    @Column({ type: "text" })
     description!: string;
 
-    @Column()
+    @Column({
+        type: "int"
+    })
     duration!: number;
 
-    @Column()
+    @Column({
+        type: "varchar"
+    })
     genre!: string;
 
-    @Column()
+    @Column({
+        type: "varchar"
+    })
     image!: string;
 }

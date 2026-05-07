@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne,PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
+
 import { Movie } from "./movie.js";
 import { Room } from "./room.js";
 
@@ -14,9 +20,13 @@ export class Session {
     @ManyToOne(() => Room)
     room!: Room;
 
-    @Column()
+    @Column({
+        type: "datetime"
+    })
     startTime!: Date;
 
-    @Column()
+    @Column({
+        type: "datetime"
+    })
     endTime!: Date;
 }
